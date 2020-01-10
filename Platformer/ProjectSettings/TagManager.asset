@@ -5,6 +5,8 @@ TagManager:
   serializedVersion: 2
   tags:
   - Block
+  - Destroyer
+  - Platform
   layers:
   - Default
   - TransparentFX
