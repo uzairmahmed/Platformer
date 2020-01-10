@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class BlockManager : MonoBehaviour
 {
-    public BlockSpawner bs;
+    //public BlockSpawner bs;
     
     //GameObject anchors;
     //GameObject block;
@@ -12,7 +12,7 @@ public class BlockManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        bs.blockArray.Add(transform.parent.gameObject);
+       // bs.blockArray.Add(transform.parent.gameObject);
 
         //anchors = transform.Find("Anchors").gameObject;
         //block = transform.Find("Block").gameObject;
@@ -28,9 +28,9 @@ public class BlockManager : MonoBehaviour
     {
         if (collision.gameObject.tag == "Destroyer")
         {
-            Debug.Log("killBlock");
-            bs.blockArray.Remove(transform.parent.gameObject);
-            Destroy(transform.parent.gameObject);
+           // Debug.Log("killBlock");
+            //bs.blockArray.Remove(transform.parent.gameObject);
+           // Destroy(transform.parent.gameObject);
         }
     }
 }
