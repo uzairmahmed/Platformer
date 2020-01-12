@@ -42,22 +42,4 @@ public class BallController : MonoBehaviour
     {
         return Physics.Raycast(transform.position, Vector3.down, distToGround + 0.55f);
     }
-
-
-    private void OnTriggerEnter(Collider collision)
-    {
-        if (collision.gameObject.tag == "Platform")
-        {
-            //spawner.GetComponent<BlockSpawner>().SpawnArray();
-        }
-    }
-
-/*
-    private void OnTriggerEnter(Collider collision)
-    {
-        if (collision.gameObject.tag == "Platform")
-        {
-            Debug.Log("killBniggdqrlock");
-        }
-    }*/
 }
