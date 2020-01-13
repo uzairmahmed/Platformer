@@ -3,18 +3,30 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class BallController : MonoBehaviour
-{   Rigidbody rb;
-    Collider cl;
+{
+    private Rigidbody rb;
+    private Collider cl;
 
-    public float speed;
-    public float jumpHeight;
+     // you need to set this to the camera you want to use
 
-    float distToGround;
-    bool isG;
+    public float acceleration = 100;
+    public float maxSpeed = 5;
+    public Vector3 groundSpeed;
+    public float turnSpeed = 5;
+    public float jumpHeight = 3;
+    public float airSpeed = 3;
+
+    private Vector3 movement;
+    private Vector2 XYmovement;
+    public Vector3 airMovement;
+    private float LookAngleX = 0;
+    private float OldLookAngleX = 0;
+    private float distToGround;
+    private float jump;
 
     void Start()
     {
-        rb = GetComponent<Rigidbody>();
+        rb = gameObject.GetComponent<Rigidbody>();
         cl = GetComponent<Collider>();
 
         distToGround = cl.bounds.extents.y;
@@ -22,24 +34,50 @@ public class BallController : MonoBehaviour
 
     void FixedUpdate()
     {
-        isG = IsGrounded();
-        float moveHorizontal = Input.GetAxis("Horizontal");
-        float moveVertical = Input.GetAxis("Vertical");
-        float moveJump = Input.GetAxis("Jump");
 
-        Vector3 movement = new Vector3(moveHorizontal, 0.0f, moveVertical);
-        Vector3 airMovement = new Vector3(-moveVertical, 0.0f, moveHorizontal);
-        Vector3 jump = new Vector3(0.0f, jumpHeight, 0.0f);
+        //###################### Movement ###############################
+        float moveVert = Input.GetAxis("Vertical");
+        float moveHor = Input.GetAxis("Horizontal");
 
-        rb.AddTorque(movement * speed);
-        rb.AddForce(airMovement * speed/2);
+        XYmovement = new Vector2(rb.velocity.x, rb.velocity.z);
 
-        if ((moveJump != 0) && (IsGrounded())) rb.AddForce(jump);
+        if (XYmovement.magnitude > maxSpeed)// clamping speed to max speed
+        {
+            XYmovement = XYmovement.normalized * maxSpeed;
+            groundSpeed = new Vector3(XYmovement.x, rb.velocity.y, XYmovement.y);
+        }
+
+        if (Input.GetButtonDown("Jump") && IsGrounded())
+        {
+            jump = jumpHeight;
+        }
+
+        airMovement = new Vector3(-moveVert, 0.0f, moveHor);
+        movement = new Vector3(moveVert, jump, 0f) + groundSpeed;
+        movement = transform.TransformDirection(movement);
+
+        if (IsGrounded())
+        {
+            rb.AddForce(movement * acceleration);
+            var Xin = Input.GetAxis("Horizontal");
+            LookAngleX += Xin * turnSpeed;
+            OldLookAngleX = LookAngleX;
+            transform.eulerAngles = new Vector3(0f, LookAngleX, 0f);
+        }
+        else
+        {
+            rb.AddForce(new Vector3(-airMovement.x * airSpeed, airMovement.y, -airMovement.z * airSpeed));
+            transform.eulerAngles = new Vector3(0f, OldLookAngleX, 0f);
+        }
+
+        jump = 0f;
 
     }
 
+
     bool IsGrounded()
     {
+        int distToGround = 0;
         return Physics.Raycast(transform.position, Vector3.down, distToGround + 0.55f);
     }
 }
