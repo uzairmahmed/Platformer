@@ -122,5 +122,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 67a2fbdbef000a6438af422212fc6973, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  speed: 100
-  jumpHeight: 1000
+  spawnPlatform: {fileID: 0}
+  endPlatform: {fileID: 0}
+  acceleration: 200
+  maxSpeed: 10
+  groundSpeed: {x: 0, y: 0, z: 0}
+  turnSpeed: 5
+  jumpHeight: 35
+  airSpeed: 100
+  h: 0
+  v: 0
+  distToGround: 0
+  onground: 0
+  deaths: 0

@@ -7,6 +7,7 @@ public class GameManager : MonoBehaviour
     public GameObject player;
     public GameObject mainCamera;
     public List<GameObject> blockTypes = new List<GameObject>();
+    public List<int> blockTypeLimiter;
 
     List<Vector3> outerPlatforms = new List<Vector3>();
     int blockSize = 1;
@@ -16,16 +17,17 @@ public class GameManager : MonoBehaviour
 
     bool generating_level;
 
-
     // Start is called before the first frame update
     void Start()
     {
+        blockTypeLimiter = new List<int>(new int[blockTypes.Count]);
         generating_level = true;
+
     }
 
     // Update is called once per frame
     void Update()
-    { 
+    {
         if (generating_level)
         {
             GenerateLevel(level);
@@ -42,8 +44,8 @@ public class GameManager : MonoBehaviour
 
         for (int i = 0; i < outerPlatforms.Count; i++)
         {
-            if (i <= (outerPlatforms.Count/2)-1) startPlats.Add(outerPlatforms[i]);
-            else if (i > (outerPlatforms.Count/2)-1) endPlats.Add(outerPlatforms[i]);
+            if (i <= (outerPlatforms.Count / 2) - 1) startPlats.Add(outerPlatforms[i]);
+            else if (i > (outerPlatforms.Count / 2) - 1) endPlats.Add(outerPlatforms[i]);
         }
 
         int startplatZone = Random.Range(0, startPlats.Count);
@@ -75,8 +77,10 @@ public class GameManager : MonoBehaviour
 
     public void GenerateLevel(int lvl)
     {
+        for (int i = 0; i < blockTypes.Count; i++) blockTypeLimiter[i] = lvl;
+
         float blockGap = lvl - 1;
-        float platformGap = ((((lvl-1)*5) + 2) + platformSize);
+        float platformGap = ((((lvl - 1) * 5) + 2) + platformSize);
 
         int rows = (2 * lvl) - 1;
         int mapCenter = (int)((rows / 2) + 1);
@@ -90,14 +94,14 @@ public class GameManager : MonoBehaviour
                 float platX = i + (i * platformGap);
                 float platZ = j + (j * platformGap);
 
-                if ((System.Math.Abs(i) == mapCenter-1) || (System.Math.Abs(j) == rowCenter))
+                if ((System.Math.Abs(i) == mapCenter - 1) || (System.Math.Abs(j) == rowCenter))
                 {
                     outerPlatforms.Add(new Vector3(platX, 0, platZ));
                 }
                 GeneratePlatform(platX, 0, platZ, platformSize, blockGap, 3);
             }
         }
-        GenerateStartEnd(platformSize*2, 0, platformGap);
+        GenerateStartEnd(platformSize * 2, 0, platformGap);
         generating_level = false;
     }
 
@@ -127,15 +131,25 @@ public class GameManager : MonoBehaviour
     {
         if (mode == 0)
         {
-            Instantiate(blockTypes[0], pos, rot);
-            GameObject ball = Instantiate(player, pos + new Vector3(0, 1f, 0), rot);
-            Instantiate(mainCamera, pos + new Vector3(5f, 5f, 0), rot);
+            GameObject block = Instantiate(blockTypes[0], pos, rot);
+            GameObject spawner = block.transform.Find("Block").Find("button").Find("button").gameObject;
+            GameObject ball = Instantiate(player, spawner.transform.position + new Vector3(-0.75f, 0.5f, -0.75f), rot);
+            ball.GetComponent<BallController>().spawnPlatform = spawner;
+
+            GameObject camera = Instantiate(mainCamera);
+            camera.transform.position = ball.transform.position;
+            camera.GetComponent<CameraController>().Player = ball;
+
         }
         else if (mode == 1) Instantiate(blockTypes[1], pos, rot);
         else
         {
-            int type = Random.Range(2, 15);
+            int type;
+            do type = Random.Range(2, 15);
+            while (blockTypeLimiter[type] == 0);
+
             Instantiate(blockTypes[type], pos, rot);
+            if (blockTypes[type].name != "GroundBlock") blockTypeLimiter[type]--;
         }
     }
 }
